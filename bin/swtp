@@ -1,17 +1,48 @@
 #!/bin/bash
 
+# Declare two arrays to hold the PHP versions and their corresponding full versions
+declare -a PHP_VERSIONS=()
+declare -a FULL_VERSIONS=()
+
+# Function to list installed PHP versions
+list_installed_php_versions() {
+    local i=1
+    while read -r path; do
+        full_version=$(basename "$path")
+        major_minor_version=$(echo "$full_version" | awk -F '.' '{print $1 "." $2}')
+        PHP_VERSIONS+=("$major_minor_version")
+        FULL_VERSIONS+=("$full_version")
+    done < <(find /opt/homebrew/Cellar/php* -type d -maxdepth 1 -mindepth 1 | awk -F '/' '{print $NF}' | sort -V)
+
+    for index in "${!FULL_VERSIONS[@]}"; do
+        full_version="${FULL_VERSIONS[$index]}"
+        major_minor_version="${PHP_VERSIONS[$index]}"
+        if [ "$major_minor_version" == "$CURRENT_PHP_VERSION" ]; then
+            echo -e "\033[0;32m* [$i] $full_version\033[0m"
+        else
+            echo "* [$i] $full_version"
+        fi
+        i=$((i + 1))
+    done
+}
+
 # Find the currently linked PHP version
 CURRENT_PHP_VERSION=$(php -v | head -n 1 | awk -F " " '{print $2}' | awk -F "." '{print $1 "." $2}')
 echo "Currently linked PHP version: $CURRENT_PHP_VERSION"
 
 # Check if a version number is provided
 if [ -z "$1" ]; then
-    echo "Please provide a PHP version to switch to."
-    exit 1
+    echo "Available PHP versions:"
+    list_installed_php_versions
+    read -p "Please choose a PHP version to switch to (enter the number): " choice
+    PHP_VERSION="${PHP_VERSIONS[$((choice - 1))]}"
+    if [ -z "$PHP_VERSION" ]; then
+        echo "Invalid selection. Exiting."
+        exit 1
+    fi
+else
+    PHP_VERSION="$1"
 fi
-
-# The PHP version to switch to
-PHP_VERSION="$1"
 
 # Check if the requested version is the same as the current version
 if [ "$CURRENT_PHP_VERSION" == "$PHP_VERSION" ]; then
@@ -20,7 +51,7 @@ if [ "$CURRENT_PHP_VERSION" == "$PHP_VERSION" ]; then
 fi
 
 # Check if the requested PHP version is installed
-if ! brew list --versions | grep -q "php@$PHP_VERSION"; then
+if ! echo "${PHP_VERSIONS[@]}" | grep -q -w "$PHP_VERSION"; then
     read -p "PHP version $PHP_VERSION is not installed. Would you like to install it now? (y/n): " choice
     case "$choice" in
         y|Y ) 

@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Declare two arrays to hold the PHP versions and their corresponding full versions
+declare -a PHP_VERSIONS=()
+declare -a FULL_VERSIONS=()
+
 # Function to display help message
 display_help() {
     echo "Usage: swtp [OPTION] [PHP_VERSION]"
@@ -10,20 +14,8 @@ display_help() {
     echo
     echo "Examples:"
     echo "  swtp          List available PHP versions and prompt for selection."
-    echo "  swtp 8.0      Switch to PHP version 8.0."
+    echo "  swtp 7.4      Switch to PHP version 7.4."
 }
-
-# Check for -h or --help option
-case "$1" in
-    -h|--help)
-        display_help
-        exit 0
-        ;;
-esac
-
-# Declare two arrays to hold the PHP versions and their corresponding full versions
-declare -a PHP_VERSIONS=()
-declare -a FULL_VERSIONS=()
 
 # Function to list installed PHP versions
 list_installed_php_versions() {
@@ -34,27 +26,35 @@ list_installed_php_versions() {
         PHP_VERSIONS+=("$major_minor_version")
         FULL_VERSIONS+=("$full_version")
     done < <(find /opt/homebrew/Cellar/php* -type d -maxdepth 1 -mindepth 1 | awk -F '/' '{print $NF}' | sort -V)
-
-    for index in "${!FULL_VERSIONS[@]}"; do
-        full_version="${FULL_VERSIONS[$index]}"
-        major_minor_version="${PHP_VERSIONS[$index]}"
-        if [ "$major_minor_version" == "$CURRENT_PHP_VERSION" ]; then
-            echo -e "\033[0;32m* [$i] $full_version\033[0m"
-        else
-            echo "* [$i] $full_version"
-        fi
-        i=$((i + 1))
-    done
 }
+
+# Check for -h or --help option
+case "$1" in
+    -h|--help)
+        display_help
+        exit 0
+        ;;
+esac
 
 # Find the currently linked PHP version
 CURRENT_PHP_VERSION=$(php -v | head -n 1 | awk -F " " '{print $2}' | awk -F "." '{print $1 "." $2}')
 echo "Currently linked PHP version: $CURRENT_PHP_VERSION"
 
+# Populate PHP_VERSIONS array
+list_installed_php_versions
+
 # Check if a version number is provided
 if [ -z "$1" ]; then
     echo "Available PHP versions:"
-    list_installed_php_versions
+    for index in "${!FULL_VERSIONS[@]}"; do
+        full_version="${FULL_VERSIONS[$index]}"
+        major_minor_version="${PHP_VERSIONS[$index]}"
+        if [ "$major_minor_version" == "$CURRENT_PHP_VERSION" ]; then
+            echo -e "\033[0;32m* [$((index + 1))] $full_version\033[0m"
+        else
+            echo "* [$((index + 1))] $full_version"
+        fi
+    done
     read -p "Please choose a PHP version to switch to (enter the number): " choice
     PHP_VERSION="${PHP_VERSIONS[$((choice - 1))]}"
     if [ -z "$PHP_VERSION" ]; then
@@ -63,12 +63,6 @@ if [ -z "$1" ]; then
     fi
 else
     PHP_VERSION="$1"
-fi
-
-# Check if the requested version is the same as the current version
-if [ "$CURRENT_PHP_VERSION" == "$PHP_VERSION" ]; then
-    echo "The requested PHP version is already active."
-    exit 0
 fi
 
 # Check if the requested PHP version is installed

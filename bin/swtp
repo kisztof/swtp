@@ -1,5 +1,26 @@
 #!/bin/bash
 
+# Function to display help message
+display_help() {
+    echo "Usage: swtp [OPTION] [PHP_VERSION]"
+    echo "Switch PHP versions easily."
+    echo
+    echo "Options:"
+    echo "  -h, --help    Display this help message and exit."
+    echo
+    echo "Examples:"
+    echo "  swtp          List available PHP versions and prompt for selection."
+    echo "  swtp 8.0      Switch to PHP version 8.0."
+}
+
+# Check for -h or --help option
+case "$1" in
+    -h|--help)
+        display_help
+        exit 0
+        ;;
+esac
+
 # Declare two arrays to hold the PHP versions and their corresponding full versions
 declare -a PHP_VERSIONS=()
 declare -a FULL_VERSIONS=()

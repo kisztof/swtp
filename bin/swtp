@@ -1,0 +1,56 @@
+#!/bin/bash
+
+# Find the currently linked PHP version
+CURRENT_PHP_VERSION=$(php -v | head -n 1 | awk -F " " '{print $2}' | awk -F "." '{print $1 "." $2}')
+echo "Currently linked PHP version: $CURRENT_PHP_VERSION"
+
+# Check if a version number is provided
+if [ -z "$1" ]; then
+    echo "Please provide a PHP version to switch to."
+    exit 1
+fi
+
+# The PHP version to switch to
+PHP_VERSION="$1"
+
+# Check if the requested version is the same as the current version
+if [ "$CURRENT_PHP_VERSION" == "$PHP_VERSION" ]; then
+    echo "The requested PHP version is already active."
+    exit 0
+fi
+
+# Check if the requested PHP version is installed
+if ! brew list --versions | grep -q "php@$PHP_VERSION"; then
+    read -p "PHP version $PHP_VERSION is not installed. Would you like to install it now? (y/n): " choice
+    case "$choice" in
+        y|Y ) 
+            echo "Installing PHP version $PHP_VERSION..."
+            brew install php@"$PHP_VERSION"
+            ;;
+        n|N ) 
+            echo "Exiting."
+            exit 1
+            ;;
+        * ) 
+            echo "Invalid option. Exiting."
+            exit 1
+            ;;
+    esac
+fi
+
+# Unlink the current PHP version
+echo "Unlinking the current PHP version..."
+brew unlink php &> /dev/null
+
+# Link the new PHP version
+echo "Linking PHP version $PHP_VERSION..."
+if brew link php@"$PHP_VERSION" --force; then
+    echo "Switched to PHP version $PHP_VERSION."
+else
+    echo "Failed to switch to PHP version $PHP_VERSION."
+    exit 1
+fi
+
+# Show the new PHP version
+echo "Current PHP version:"
+php -v

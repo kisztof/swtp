@@ -1,0 +1,57 @@
+#!/bin/bash
+
+if [ -z "$1" ]; then
+    echo "Please provide a PHP version to switch to."
+    exit 1
+fi
+
+PHP_VERSION="$1"
+GLOBAL_BIN_DIR="/usr/local/bin"
+
+# Check if the requested PHP version is installed
+if brew list --versions "php@$PHP_VERSION" > /dev/null; then
+
+    # Check if installed in the global bin directory
+    INSTALLED_PATH=$(brew --prefix php@"$PHP_VERSION")
+    if [ "$INSTALLED_PATH" != "$GLOBAL_BIN_DIR/php@$PHP_VERSION" ]; then
+        echo "PHP version $PHP_VERSION is not installed in the global bin directory. Would you like to move it there? (y/n)"
+        read -r choice
+        if [ "$choice" = "y" ] || [ "$choice" = "Y" ]; then
+            ln -s "$INSTALLED_PATH" "$GLOBAL_BIN_DIR/php@$PHP_VERSION"
+            echo "Moved to the global bin directory."
+        else
+            echo "Aborting. You chose not to move PHP version $PHP_VERSION to the global bin directory."
+            exit 1
+        fi
+    fi
+
+    echo "Unlinking the current PHP version..."
+    brew unlink php &> /dev/null
+
+    echo "Linking PHP version $PHP_VERSION..."
+    if brew link php@"$PHP_VERSION" --force; then
+        echo "Switched to PHP version $PHP_VERSION."
+    else
+        echo "Failed to switch to PHP version $PHP_VERSION."
+        exit 1
+    fi
+
+else
+    echo "PHP version $PHP_VERSION is not installed. Would you like to install it? (y/n)"
+    read -r choice
+    if [ "$choice" = "y" ] || [ "$choice" = "Y" ]; then
+        brew install php@"$PHP_VERSION"
+        if [ $? -eq 0 ]; then
+            echo "Successfully installed PHP version $PHP_VERSION."
+        else
+            echo "Failed to install PHP version $PHP_VERSION."
+            exit 1
+        fi
+    else
+        echo "Aborting. You chose not to install PHP version $PHP_VERSION."
+        exit 1
+    fi
+fi
+
+echo "Current PHP version:"
+php -v

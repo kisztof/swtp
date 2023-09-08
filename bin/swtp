@@ -44,13 +44,12 @@ brew unlink php &> /dev/null
 
 # Link the new PHP version
 echo "Linking PHP version $PHP_VERSION..."
-if brew link php@"$PHP_VERSION" --force; then
+if brew link php@"$PHP_VERSION" --force &> /dev/null; then
     echo "Switched to PHP version $PHP_VERSION."
+    NEW_PHP_VERSION=$(php -v | head -n 1 | awk -F " " '{print $2}' | awk -F "." '{print $1 "." $2}')
+    echo "You are now using PHP version: $NEW_PHP_VERSION"
 else
     echo "Failed to switch to PHP version $PHP_VERSION."
     exit 1
 fi
 
-# Show the new PHP version
-echo "Current PHP version:"
-php -v

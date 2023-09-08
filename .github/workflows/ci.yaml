@@ -1,0 +1,56 @@
+
+name: Shell Linting and Installation Check
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - '*'
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  lint_and_install:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        shell: ['/bin/bash', '/bin/zsh', '/usr/bin/fish', '/bin/csh', '/bin/tcsh', '/bin/ksh', '/bin/dash']
+    runs-on: ${{ matrix.os }}
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v2
+
+    - name: Install dependencies (Linux)
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y shellcheck fish csh tcsh ksh dash zsh
+
+    - name: Install dependencies (macOS)
+      if: runner.os == 'macOS'
+      run: |
+        brew update
+        brew install shellcheck fish zsh
+        brew install --cask tcsh ksh
+
+    - name: Run ShellCheck
+      run: shellcheck bin/*.sh
+
+    - name: Test Installation on ${{ matrix.shell }}
+      shell: ${{ matrix.shell }}
+      run: |
+        chmod +x install.sh
+        ./install.sh
+        case "$SHELL" in
+          '/bin/bash')  source ~/.bashrc  ;;
+          '/bin/zsh')   source ~/.zshrc   ;;
+          '/usr/bin/fish') source ~/.config/fish/config.fish ;;
+          '/bin/csh')  source ~/.cshrc   ;;
+          '/bin/tcsh') source ~/.tcshrc  ;;
+          '/bin/ksh')  source ~/.kshrc   ;;
+          '/bin/dash') source ~/.dashrc  ;; # If dash has an rc file
+          *) echo "Shell not supported" ;;
+        esac
+        type swtp

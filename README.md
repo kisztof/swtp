@@ -4,7 +4,7 @@ The `swtp` script allows you to easily switch between different PHP versions ins
 
 ## Prerequisites
 
-- Homebrew must be installed on your macOS system.
+- Homebrew must be installed on your macOS system. How to do this see [Homebrew](https://brew.sh)
 - Your system should have the Bash shell installed, although the installation script supports various other shells 
 bash, zsh, fish, csh, ksh, and dash.
 

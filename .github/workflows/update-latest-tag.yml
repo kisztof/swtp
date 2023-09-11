@@ -1,0 +1,30 @@
+name: Auto-Update Latest Tag
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  update-latest-tag:
+    runs-on: ubuntu-latest
+    if: github.ref != 'refs/tags/latest'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Fetch all tags
+      run: git fetch --tags
+
+    - name: Get the latest tag
+      id: get-latest-tag
+      run: echo "::set-output name=tag::$(git describe --tags $(git rev-list --tags --max-count=1))"
+
+    - name: Update the latest tag
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git tag -fa latest -m "Update to point to the latest tag" ${{ steps.get-latest-tag.outputs.tag }}
+        git push origin :refs/tags/latest
+        git push origin --tags

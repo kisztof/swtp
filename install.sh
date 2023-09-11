@@ -2,8 +2,9 @@
 
 # Define the target directory where the swtp script will be placed
 TARGET_DIR="$HOME/.swtp/bin"
+VERSION_FILE="$HOME/.swtp/version"
 
-# Create the target directory if it doesn't exist
+# Create the target directories if they don't exist
 mkdir -p "$TARGET_DIR"
 
 # Download the latest tagged version of swtp script from the repository
@@ -12,6 +13,9 @@ if [ $? -ne 0 ]; then
     echo "Failed to fetch the latest tag. Exiting."
     exit 1
 fi
+
+# Store the version in a file
+echo "$LATEST_TAG" > "$VERSION_FILE"
 
 curl -L "https://raw.githubusercontent.com/kisztof/swtp/$LATEST_TAG/bin/swtp.sh" -o "$TARGET_DIR/swtp"
 if [ $? -ne 0 ]; then

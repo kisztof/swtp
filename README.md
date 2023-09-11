@@ -17,7 +17,7 @@ bash, zsh, fish, csh, ksh, and dash.
 To install swtp in a manner similar to Homebrew, you can use the following one-liner. This will download and execute the `install.sh` script, placing the swtp tool into `$HOME/.swtp/bin/swtp`.
 
 ```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/kisztof/swtp/main/install.sh)"
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/kisztof/swtp/latest/install.sh)"
 ```
 
 ## Usage

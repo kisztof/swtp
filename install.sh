@@ -1,52 +1,24 @@
 #!/bin/bash
 
-# Detect the current shell
-CURRENT_SHELL=$(basename "$SHELL")
+# Define the target directory where the swtp script will be placed
+TARGET_DIR="/usr/local/bin"
 
-# Automatically detect the directory containing this install script, and append /bin
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)/bin"
+# Check if the script is running as root
+if [ "$EUID" -ne 0 ]; then
+    echo "This script needs to be run as root to install swtp in $TARGET_DIR."
+    echo "Please enter your root password to proceed:"
+    sudo -v
+    if [ $? -ne 0 ]; then
+        echo "Incorrect password or operation cancelled. Exiting."
+        exit 1
+    fi
+fi
+
+# Download the latest tagged version of swtp script from the repository
+LATEST_TAG=$(curl -s https://api.github.com/repos/kisztof/swtp/tags | grep -o '"name": "[^"]*' | head -n 1 | sed 's/"name": "//')
+curl -L "https://github.com/kisztof/swtp/releases/download/$LATEST_TAG/swtp" -o "$TARGET_DIR/swtp"
 
 # Make swtp executable
-chmod +x "$SCRIPT_DIR/swtp"
+sudo chmod +x "$TARGET_DIR/swtp"
 
-add_to_path() {
-    config_file=$1
-    shell_name=$2
-    if grep -q "export PATH.*$SCRIPT_DIR" "$config_file"; then
-        echo "swtp is already in your PATH in $shell_name"
-    else
-        echo "export PATH=\$PATH:$SCRIPT_DIR" >> "$config_file"
-        echo "swtp has been added to your PATH in $shell_name"
-    fi
-}
-
-case "$CURRENT_SHELL" in
-    bash)
-        add_to_path "$HOME/.bashrc" ".bashrc"
-        ;;
-    zsh)
-        add_to_path "$HOME/.zshrc" ".zshrc"
-        ;;
-    fish)
-        if grep -q "$SCRIPT_DIR" "$HOME/.config/fish/config.fish"; then
-            echo "swtp is already in your PATH in config.fish"
-        else
-            echo "set -U fish_user_paths $SCRIPT_DIR \$fish_user_paths" >> "$HOME/.config/fish/config.fish"
-            echo "swtp has been added to your PATH in config.fish"
-        fi
-        ;;
-    csh|tcsh)
-        add_to_path "$HOME/.cshrc" ".cshrc"
-        ;;
-    ksh)
-        add_to_path "$HOME/.kshrc" ".kshrc"
-        ;;
-    dash)
-        add_to_path "$HOME/.dashrc" ".dashrc"
-        ;;
-    *)
-        echo "Unsupported or unknown shell detected."
-        echo "Please manually add the following line to your shell's startup file:"
-        echo "export PATH=\$PATH:$SCRIPT_DIR"
-        ;;
-esac
+echo "swtp has been installed successfully in $TARGET_DIR."

@@ -11,26 +11,15 @@ The `swtp` script allows you to easily switch between different PHP versions ins
 - Your system should have the Bash shell installed, although the installation script supports various other shells 
 bash, zsh, fish, csh, ksh, and dash.
 
-## Installation
+## One-Step Automated Installation
 
-**Download the Repository**: Clone this repository to a directory of your choice.
-
-```bash
-git clone https://github.com/kisztof/swtp.git
-```
-
-**Navigate to the Directory**: Use the terminal to navigate into the directory where you have cloned the repository.
+To install swtp in a manner similar to Homebrew, you can use the following one-liner. This will download and execute the `install.sh` script, placing the swtp utility in `/usr/local/bin`.
 
 ```bash
-cd path/to/cloned/repo
+/bin/bash -c "$(curl -fsSL https://github.com/kisztof/swtp/releases/download/latest/install.sh)"
 ```
 
-**Run the Installer**: Before you use `swtp`, it's crucial to run the `install.sh` script. This will add `swtp` to your `$PATH`, enabling you to run it from any directory. Execute the following commands to make `install.sh` executable and run it:
-
-```bash
-chmod +x install.sh
-./install.sh
-```
+**Note**: You may need to enter your root password since the script installs swtp into `/usr/local/bin`, which typically requires `root` permissions.
 
 ## Usage
 

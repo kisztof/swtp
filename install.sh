@@ -13,7 +13,7 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-curl -L "https://raw.githubusercontent.com/kisztof/swtp/$LATEST_TAG/bin/swtp" -o "$TARGET_DIR/swtp"
+curl -L "https://raw.githubusercontent.com/kisztof/swtp/$LATEST_TAG/bin/swtp.sh" -o "$TARGET_DIR/swtp"
 if [ $? -ne 0 ]; then
     echo "Failed to download swtp. Exiting."
     exit 1

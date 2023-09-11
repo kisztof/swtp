@@ -31,6 +31,26 @@ swtp 8.0 # Switches to PHP 8.0
 
 If the desired PHP version is not installed, `swtp` will automatically attempt to install it using Homebrew.
 
+### Auto-Update
+
+To update swtp to the latest version, run:
+
+```bash
+swtp --update
+```
+
+This will fetch the latest version from the GitHub repository and update the script.
+
+### Display Current Version
+
+To display the current version of swtp, run:
+
+```bash
+swtp --version
+```
+This will show the version of swtp that you are currently using.
+
+
 ## Supported Shells
 
 The `install.sh` script supports the following shells:
@@ -43,6 +63,3 @@ The `install.sh` script supports the following shells:
 - Dash
 
 ---
-
-
-

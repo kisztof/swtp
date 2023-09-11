@@ -2,6 +2,9 @@
 
 The `swtp` script allows you to easily switch between different PHP versions installed on your system. It additionally has the capability to install any missing PHP versions using Homebrew.
 
+## Articles
+- [Simplyfying PHP version management](https://kisztof.medium.com/simplifying-php-version-management-with-swtp-c6cf1848c1f8)
+
 ## Prerequisites
 
 - Homebrew must be installed on your macOS system. How to do this see [Homebrew](https://brew.sh)

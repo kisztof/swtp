@@ -20,6 +20,8 @@ To install swtp in a manner similar to Homebrew, you can use the following one-l
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/kisztof/swtp/latest/install.sh)"
 ```
 
+The bootstrap script now includes a Homebrew installation check. When you run the script, it will automatically prompt you to install Homebrew if it's not already installed.
+
 ## Usage
 
 Once you've executed `install.sh`, you can switch PHP versions easily using `swtp`.

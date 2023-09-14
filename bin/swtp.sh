@@ -65,6 +65,20 @@ check_for_update() {
     fi
 }
 
+check_homebrew() {
+  if ! command -v brew &> /dev/null; then
+    echo "Homebrew is not installed. Would you like to install it now? (y/n)"
+    read -r answer
+    if [ "$answer" == "y" ]; then
+      /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    else
+      echo "Homebrew is required for this script to run. Exiting."
+      return 1
+    fi
+  fi
+  return 0
+}
+
 # Function to display help message
 display_help() {
     echo "Usage: swtp [OPTION] [PHP_VERSION]"
@@ -204,6 +218,9 @@ handle_php_version_switch() {
 # Main execution function
 main() {
     check_for_update
+    if ! check_homebrew; then
+        exit 1
+    fi
     handle_option "$1"
     exit 0
 }
